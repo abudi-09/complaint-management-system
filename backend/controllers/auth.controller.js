@@ -5,7 +5,7 @@ import { generateTokenAndSetCookie } from "../utils/generateToken.js";
 // Signup
 export const signup = async (req, res) => {
   try {
-    const { fullName, username, email, password, role } = req.body;
+    const { name, username, email, password, role } = req.body;
 
     const allowedRoles = ["user", "staff"];
     if (!allowedRoles.includes(role)) {
@@ -38,7 +38,7 @@ export const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
-      fullName,
+      name,
       username,
       email,
       password: hashedPassword,
@@ -59,7 +59,7 @@ export const signup = async (req, res) => {
     // Return user details without password
     res.status(201).json({
       _id: newUser._id,
-      fullName: newUser.fullName,
+      name: newUser.name,
       username: newUser.username,
       email: newUser.email,
       role: newUser.role,

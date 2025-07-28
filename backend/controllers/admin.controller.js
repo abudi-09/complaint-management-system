@@ -33,15 +33,15 @@ export const approveStaff = async (req, res) => {
 export const rejectStaff = async (req, res) => {
   try {
     const staffId = req.params.id;
-    const staff = await User.findById(staffId);
+    const staff = await User.findOneAndDelete({ _id: staffId, role: "staff" });
 
-    if (!staff || staff.role !== "staff") {
+    if (!staff) {
       return res.status(404).json({ error: "Staff not found" });
     }
 
-    await staff.remove();
     res.status(200).json({ message: "Staff rejected and removed" });
   } catch (error) {
+    console.error("Reject staff error:", error.message);
     res.status(500).json({ error: "Failed to reject staff" });
   }
 };
