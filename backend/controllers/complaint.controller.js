@@ -20,16 +20,43 @@ export const createComplaint = async (req, res) => {
 };
 
 // 2. User views their complaints
+// 2. User views/filter/search their complaints with feedback support
 export const getMyComplaints = async (req, res) => {
   try {
-    const complaints = await Complaint.find({
+    const { status, category, search } = req.query;
+
+    const filters = {
       submittedBy: req.user._id,
-    }).populate("assignedTo", "name email");
-    res.status(200).json(complaints);
+    };
+
+    if (status) filters.status = status;
+    if (category) filters.category = category;
+    if (search) {
+      filters.title = { $regex: search, $options: "i" };
+    }
+
+    const complaints = await Complaint.find(filters)
+      .populate("assignedTo", "name email")
+      .sort({ updatedAt: -1 });
+
+    const formatted = complaints.map((c) => ({
+      id: c._id,
+      title: c.title,
+      status: c.status,
+      category: c.category,
+      submittedDate: c.createdAt,
+      lastUpdated: c.updatedAt,
+      assignedTo: c.assignedTo?.name || null,
+      feedback: c.status === "Resolved" ? c.feedback || null : null,
+    }));
+
+    res.status(200).json(formatted);
   } catch (err) {
+    console.error("Get my complaints error:", err.message);
     res.status(500).json({ error: "Failed to fetch complaints" });
   }
 };
+
 // 3. Admin views all complaints
 export const getAllComplaints = async (req, res) => {
   try {
