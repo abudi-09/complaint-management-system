@@ -53,19 +53,26 @@ export const assignComplaint = async (req, res) => {
       return res.status(400).json({ error: "Invalid staff member" });
     }
 
-    const complaint = await Complaint.findByIdAndUpdate(
-      // Update the complaint
-      complaintId,
-      { assignedTo: staffId, status: "In Progress" },
-      { new: true }
-    );
-
-    if (!complaint)
+    const complaint = await Complaint.findById(complaintId);
+    if (!complaint) {
       return res.status(404).json({ error: "Complaint not found" });
+    }
 
-    res.status(200).json({ message: "Complaint assigned", complaint });
+    const wasPreviouslyAssigned = !!complaint.assignedTo;
+
+    complaint.assignedTo = staffId;
+    complaint.status = "In Progress";
+
+    // Optional: Add reassignment history here if needed
+    await complaint.save();
+
+    const message = wasPreviouslyAssigned
+      ? "Complaint reassigned successfully"
+      : "Complaint assigned successfully";
+
+    res.status(200).json({ message, complaint });
   } catch (err) {
-    res.status(500).json({ error: "Failed to assign complaint" });
+    res.status(500).json({ error: "Failed to (re)assign complaint" });
   }
 };
 
