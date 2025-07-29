@@ -25,3 +25,10 @@ export const adminOnly = (req, res, next) => {
     return res.status(403).json({ error: "Access denied: Admins only" });
   }
 };
+export const staffOnly = (req, res, next) => {
+  if (req.user && req.user.role === "staff" && req.user.isApproved) {
+    next();
+  } else {
+    return res.status(403).json({ error: "Access denied: Staff only" });
+  }
+};
