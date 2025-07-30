@@ -121,3 +121,35 @@ export const logout = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const getMe = async (req, res) => {
+  try {
+    // req.user should be set by protectRoute middleware
+    if (!req.user) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+    // Remove sensitive info
+    const {
+      _id,
+      fullName,
+      username,
+      name,
+      email,
+      role,
+      department,
+      isApproved,
+    } = req.user;
+    res.status(200).json({
+      _id,
+      fullName,
+      username,
+      name,
+      email,
+      role,
+      department,
+      isApproved,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
