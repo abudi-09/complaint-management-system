@@ -1,4 +1,4 @@
-import User from "../models/user.model.js";
+ import User from "../models/user.model.js";
 
 // Get all pending staff registrations
 export const getPendingStaff = async (req, res) => {
